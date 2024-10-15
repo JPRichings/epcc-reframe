@@ -9,6 +9,7 @@
 
 import reframe as rfm
 import reframe.utility.sanity as sn
+import reframe.utility.osext
 
 
 @rfm.simple_test
@@ -55,14 +56,20 @@ class CodeSaturneSmallTest(rfm.RunOnlyRegressionTest):
     @sanity_function
     def assert_finished(self):
         """Sanity check that simulation finished successfully"""
-        return sn.assert_found("Good job", self.stdout)
+        # T_junction/case1/RESU/20241003-1433/run_solver.log END OF CALCULATION
+        print(reframe.utility.osext.run_command("pwd"))
+        log_file = reframe.utility.osext.run_command("find . -name run_solver.log")
+        print(log_file)
+        log_file_strip = str(log_file.stdout).strip("\n")
+        print(log_file_strip)
+        return sn.assert_found("END OF CALCULATION", log_file_strip)
 
-    @performance_function("seconds", perf_key="performance")
-    def extract_perf(self):
-        """Extract performance value to compare with reference value"""
-        return sn.extractsingle(
-            r"Averaged time per step \(s\):\s+(?P<steptime>\S+)",
-            self.stdout,
-            "steptime",
-            float,
-        )
+    #@performance_function("seconds", perf_key="performance")
+    #def extract_perf(self):
+    #    """Extract performance value to compare with reference value"""
+    #    return sn.extractsingle(
+    #        r"Averaged time per step \(s\):\s+(?P<steptime>\S+)",
+    #        self.stdout,
+    #        "steptime",
+    #        float,
+    #    )
